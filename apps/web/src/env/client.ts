@@ -1,28 +1,30 @@
-// @ts-check
 import { clientEnv, clientSchema } from './schema'
 
 const _clientEnv = clientSchema.safeParse(clientEnv)
 
-export const formatErrors = (
-  /** @type {import('zod').ZodFormattedError<Map<string,string>,string>} */
-  errors
-) =>
+type ValueWithErrors = Record<string, [string, {
+  _errors: string[]
+}]>[]
+
+export const formatErrors = (errors: ValueWithErrors) =>
   Object.entries(errors)
-    .map(([name, value]) => {
-      if (value && '_errors' in value)
+    .map((error) => {
+      const [name, value] = error
+      if (value && '_errors' in value) {
         return `${name}: ${value._errors.join(', ')}\n`
+      }
     })
     .filter(Boolean)
 
 if (!_clientEnv.success) {
   console.error(
     '❌ Invalid environment variables:\n',
-    ...formatErrors(_clientEnv.error.format())
+    ...formatErrors(_clientEnv.error.format() as unknown as ValueWithErrors)
   )
   throw new Error('Invalid environment variables')
 }
 
-for (let key of Object.keys(_clientEnv.data)) {
+for (const key of Object.keys(_clientEnv.data)) {
   if (!key.startsWith('VITE_')) {
     console.warn(
       `❌ Invalid public environment variable name: ${key}. It must begin with 'VITE_'`
