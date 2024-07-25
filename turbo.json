@@ -1,31 +1,16 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".env"],
+  "globalEnv": [
+    "VITE_VERCEL_ENV"
+  ],
   "tasks": {
     "build": {
-      "env": [
-        "VERCEL_ENV"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env.production.local",
-        ".env.local",
-        ".env.production",
-        ".env"
-      ],
       "outputs": ["dist/**"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
     },
     "dev": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env.development.local",
-        ".env.local",
-        ".env.development",
-        ".env"
-      ],
       "persistent": true,
       "cache": false
     }
